@@ -51,7 +51,7 @@ local config = {
 	adjust_window_size_when_changing_font_size = false,
 	-- win32_system_backdrop = 'Acrylic',
 	
-	tab_max_width = 50,
+	tab_max_width = 100,
 	
 	window_padding = {
 		left = 6, 
@@ -159,6 +159,17 @@ local function get_current_working_dir(tab)
 	return current_dir == HOME_DIR and "." or string.gsub(current_dir, "(.*[/\\])(.*)", "%2")
 end
 
+function splitString(str, delimiter)
+	local result = {}
+	local pattern = string.format("([^%s]+)", delimiter)
+
+	for part in string.gmatch(str, pattern) do
+		table.insert(result, part)
+	end
+
+	return result
+end
+
 wezterm.on('format-tab-title',
 function(tab, tabs, panes, config, hover, max_width)
     local l_edge_background = '#999'
@@ -224,9 +235,10 @@ function(tab, tabs, panes, config, hover, max_width)
 
     -- ensure that the titles fit in the available space,
     -- and that we have room for the edges.
-    -- local title = wezterm.truncate_right(tab.active_pane.title, max_width - 2)
-	local title = tab_title(tab)
-	-- local title = string.format(" %s  %s ~ %s  ", "❯", get_current_working_dir(tab))
+	-- local pane = tab.active_pane
+  	-- local title = pane.foreground_process_name
+    local title_ = wezterm.truncate_right(tab.active_pane.title, max_width-2)
+	local title = splitString(title_, ".")[1]
 
     return {
         { Foreground = { Color = l_edge_foreground } },
@@ -236,7 +248,7 @@ function(tab, tabs, panes, config, hover, max_width)
         { Background = { Color = background } },
         { Foreground = { Color = foreground } },
 		{ Attribute = { Intensity = intensity_ } },
-        { Text = '' .. l_gap .. title .. r_gap .. '' },
+        { Text = ' ' .. l_gap .. title .. r_gap .. ' ' },
         { Background = { Color = r_edge_background } },
         { Foreground = { Color = r_edge_foreground } },
         { Text = r_arr },
